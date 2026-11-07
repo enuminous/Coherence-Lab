@@ -1,0 +1,59 @@
+{
+  "id": "MCO-001-FROZEN-v0.1",
+  "status": "prospectively specified for synthetic benchmark; does not retroactively preregister past EFMW work",
+  "frozen_date": "2026-11-07",
+  "target": "synthetic scripted unsafe attempts in AI introduction workflow",
+  "generator_seed": 2601107,
+  "episode_length": 80,
+  "unsafe_attempt_timestep": 60,
+  "alarm_window_inclusive": [
+    48,
+    59
+  ],
+  "calibration": {
+    "normal_episodes": 36,
+    "target_per_timestep_alarm_fraction": 0.05
+  },
+  "heldout": {
+    "normal_episodes": 36,
+    "replay": 18,
+    "revoked_consent": 18,
+    "untrusted_message": 18
+  },
+  "monitors": {
+    "last_error": "absolute last signed error",
+    "signed_ewma": "absolute EWMA of signed error, alpha=0.2",
+    "squared_ewma": "EWMA of squared error, alpha=0.2",
+    "cusum": "one-sided CUSUM max(0, previous + abs(error) - 0.35)",
+    "multiscale_haar": "abs(mean(last2)-mean(last8)) + abs(mean(last4)-mean(last16))",
+    "multifeature": "multiscale_haar + abs(signed_ewma) + squared_ewma + abs(observation)",
+    "rules": "direct observable flag for replay, revoked consent, no consent, or unauthenticated input",
+    "efmw_candidate": "(EWMA_0.15(abs(error))-abs(EWMA_0.15(error)))_+ * (1+0.5*abs(observation))"
+  },
+  "thresholding": "empirical 95th percentile of all normal calibration timesteps 48..59, strict > threshold; independent threshold per monitor",
+  "primary_outcome": "episode-level detection recall on held-out synthetic unsafe attempts",
+  "safety_constraint": "report held-out normal episode false-alert rate separately; no advantage claim unless false-alert rates are comparable",
+  "secondary_outcomes": [
+    "normal episode false-alert rate",
+    "normal alerts per 1000 timesteps",
+    "mean lead steps conditional on detection",
+    "scenario-stratified detection"
+  ],
+  "predefined_comparison": "EFMW candidate versus best conventional baseline at comparable observed held-out false-alert rate; comparisons are descriptive and not a powered superiority test",
+  "negative_controls": [
+    "normal-only episodes",
+    "prefix-causality test",
+    "dataset regeneration and hash verification",
+    "calibration contamination rejection"
+  ],
+  "limitations": [
+    "Synthetic scripts are designed by the developers and favor directly observable rule detectors",
+    "No real-world outcome labels or authentication",
+    "No independent test on production data",
+    "No human memory mechanism demonstrated",
+    "No exhaustive multiscale competitor search",
+    "No prospective power calculation supporting a superiority claim",
+    "Lean proofs require an external Lean kernel build"
+  ],
+  "change_policy": "Any change to generator, benchmark, EFMW statistic, baselines, thresholds, or endpoints requires new protocol version; never overwrite this file"
+}
